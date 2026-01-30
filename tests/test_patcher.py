@@ -37,7 +37,7 @@ def test_add_file():
         pytest.skip("Test wheel not found")
 
     # Create a temporary file to add
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
         f.write("Test SBOM content")
         temp_file = Path(f.name)
 
@@ -56,14 +56,14 @@ def test_add_file():
             assert output_wheel.exists()
 
             # Check that the new file is in the wheel
-            with zipfile.ZipFile(output_wheel, 'r') as zf:
+            with zipfile.ZipFile(output_wheel, "r") as zf:
                 assert dest_path in zf.namelist()
-                content = zf.read(dest_path).decode('utf-8')
+                content = zf.read(dest_path).decode("utf-8")
                 assert content == "Test SBOM content"
 
                 # Verify RECORD was updated
                 record_path = f"{patcher.get_dist_info_dir()}/RECORD"
-                record_content = zf.read(record_path).decode('utf-8')
+                record_content = zf.read(record_path).decode("utf-8")
                 assert dest_path in record_content
                 assert "sha256=" in record_content
 
@@ -76,7 +76,7 @@ def test_add_file_no_dest():
     if not TEST_WHEEL.exists():
         pytest.skip("Test wheel not found")
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         f.write('{"test": "data"}')
         temp_file = Path(f.name)
 
@@ -89,7 +89,7 @@ def test_add_file_no_dest():
                 patcher.save(output_wheel)
 
             # File should be at root with original name
-            with zipfile.ZipFile(output_wheel, 'r') as zf:
+            with zipfile.ZipFile(output_wheel, "r") as zf:
                 assert temp_file.name in zf.namelist()
 
     finally:
@@ -101,7 +101,7 @@ def test_add_file_already_exists():
     if not TEST_WHEEL.exists():
         pytest.skip("Test wheel not found")
 
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
         f.write("content")
         temp_file = Path(f.name)
 
@@ -120,7 +120,7 @@ def test_add_file_with_overwrite():
     if not TEST_WHEEL.exists():
         pytest.skip("Test wheel not found")
 
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
         f.write("new content")
         temp_file = Path(f.name)
 
@@ -134,8 +134,8 @@ def test_add_file_with_overwrite():
                 patcher.save(output_wheel)
 
             # Verify the file was overwritten
-            with zipfile.ZipFile(output_wheel, 'r') as zf:
-                content = zf.read("requests/__init__.py").decode('utf-8')
+            with zipfile.ZipFile(output_wheel, "r") as zf:
+                content = zf.read("requests/__init__.py").decode("utf-8")
                 assert content == "new content"
 
     finally:
@@ -170,7 +170,7 @@ def test_dist_info_prefix_resolution():
     if not TEST_WHEEL.exists():
         pytest.skip("Test wheel not found")
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         f.write('{"type": "sbom"}')
         temp_file = Path(f.name)
 
@@ -185,13 +185,15 @@ def test_dist_info_prefix_resolution():
 
             # Verify the file was added with the correct path
             expected_path = "requests-2.32.5.dist-info/sboms/sbom.json"
-            with zipfile.ZipFile(output_wheel, 'r') as zf:
+            with zipfile.ZipFile(output_wheel, "r") as zf:
                 assert expected_path in zf.namelist()
-                content = zf.read(expected_path).decode('utf-8')
+                content = zf.read(expected_path).decode("utf-8")
                 assert content == '{"type": "sbom"}'
 
                 # Verify RECORD was updated with resolved path
-                record_content = zf.read("requests-2.32.5.dist-info/RECORD").decode('utf-8')
+                record_content = zf.read("requests-2.32.5.dist-info/RECORD").decode(
+                    "utf-8"
+                )
                 assert expected_path in record_content
 
     finally:
@@ -204,12 +206,12 @@ def test_dist_info_prefix_multiple_files():
         pytest.skip("Test wheel not found")
 
     # Create two temporary files
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         f.write('{"sbom": "data"}')
         sbom_file = Path(f.name)
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
-        f.write('License text')
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+        f.write("License text")
         license_file = Path(f.name)
 
     try:
@@ -219,13 +221,18 @@ def test_dist_info_prefix_multiple_files():
             with WheelPatcher(TEST_WHEEL) as patcher:
                 # Add multiple files using .dist-info/ prefix
                 patcher.add_file(sbom_file, ".dist-info/sbom.json")
-                patcher.add_file(license_file, ".dist-info/licenses/LICENSE-THIRD-PARTY")
+                patcher.add_file(
+                    license_file, ".dist-info/licenses/LICENSE-THIRD-PARTY"
+                )
                 patcher.save(output_wheel)
 
             # Verify both files were added with resolved paths
-            with zipfile.ZipFile(output_wheel, 'r') as zf:
+            with zipfile.ZipFile(output_wheel, "r") as zf:
                 assert "requests-2.32.5.dist-info/sbom.json" in zf.namelist()
-                assert "requests-2.32.5.dist-info/licenses/LICENSE-THIRD-PARTY" in zf.namelist()
+                assert (
+                    "requests-2.32.5.dist-info/licenses/LICENSE-THIRD-PARTY"
+                    in zf.namelist()
+                )
 
     finally:
         sbom_file.unlink()
@@ -237,8 +244,8 @@ def test_dist_info_prefix_not_applied_when_absent():
     if not TEST_WHEEL.exists():
         pytest.skip("Test wheel not found")
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
-        f.write('Regular file')
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+        f.write("Regular file")
         temp_file = Path(f.name)
 
     try:
@@ -251,10 +258,13 @@ def test_dist_info_prefix_not_applied_when_absent():
                 patcher.save(output_wheel)
 
             # Verify the file is at the exact path specified
-            with zipfile.ZipFile(output_wheel, 'r') as zf:
+            with zipfile.ZipFile(output_wheel, "r") as zf:
                 assert "custom/path/file.txt" in zf.namelist()
                 # Should NOT be in dist-info
-                assert "requests-2.32.5.dist-info/custom/path/file.txt" not in zf.namelist()
+                assert (
+                    "requests-2.32.5.dist-info/custom/path/file.txt"
+                    not in zf.namelist()
+                )
 
     finally:
         temp_file.unlink()

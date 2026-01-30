@@ -107,7 +107,7 @@ def cmd_apply(args):
         return 1
 
     try:
-        with open(manifest_path, 'r') as f:
+        with open(manifest_path, "r") as f:
             manifest = json.load(f)
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON in manifest: {e}", file=sys.stderr)
@@ -116,7 +116,7 @@ def cmd_apply(args):
         print(f"Error reading manifest: {e}", file=sys.stderr)
         return 1
 
-    if 'files' not in manifest:
+    if "files" not in manifest:
         print("Error: Manifest must contain 'files' array", file=sys.stderr)
         return 1
 
@@ -124,13 +124,16 @@ def cmd_apply(args):
 
     try:
         with WheelPatcher(wheel_path) as patcher:
-            for file_spec in manifest['files']:
-                if 'source' not in file_spec or 'dest' not in file_spec:
-                    print("Error: Each file entry must have 'source' and 'dest'", file=sys.stderr)
+            for file_spec in manifest["files"]:
+                if "source" not in file_spec or "dest" not in file_spec:
+                    print(
+                        "Error: Each file entry must have 'source' and 'dest'",
+                        file=sys.stderr,
+                    )
                     return 1
 
-                source = Path(file_spec['source'])
-                dest = file_spec['dest']
+                source = Path(file_spec["source"])
+                dest = file_spec["dest"]
 
                 if not source.exists():
                     print(f"Error: Source file not found: {source}", file=sys.stderr)
@@ -189,7 +192,7 @@ def cmd_extract(args):
 
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
-        with zipfile.ZipFile(wheel_path, 'r') as zf:
+        with zipfile.ZipFile(wheel_path, "r") as zf:
             zf.extractall(output_dir)
         print(f"Extracted wheel to: {output_dir}")
         return 0
@@ -202,10 +205,10 @@ def cmd_extract(args):
 def main():
     """Main entry point for CLI."""
     parser = argparse.ArgumentParser(
-        prog='wheel-patcher',
-        description='A tool for patching Python wheel files',
+        prog="wheel-patcher",
+        description="A tool for patching Python wheel files",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''
+        epilog="""
 Examples:
   # Add an SBOM file to a wheel
   wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \\
@@ -221,85 +224,69 @@ Examples:
   wheel-patcher extract mypackage-1.0-py3-none-any.whl --output extracted/
 
 Note: Use .dist-info/ prefix for auto-resolution (e.g., .dist-info/sbom.json).
-'''
+""",
     )
 
     parser.add_argument(
-        '--version',
-        action='version',
-        version=f'%(prog)s {__version__}'
+        "--version", action="version", version=f"%(prog)s {__version__}"
     )
 
-    subparsers = parser.add_subparsers(dest='command', help='Command to run')
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
     # Add command
-    add_parser = subparsers.add_parser(
-        'add',
-        help='Add a file to a wheel'
-    )
-    add_parser.add_argument('wheel', help='Path to wheel file')
-    add_parser.add_argument('file', help='Path to file to add')
+    add_parser = subparsers.add_parser("add", help="Add a file to a wheel")
+    add_parser.add_argument("wheel", help="Path to wheel file")
+    add_parser.add_argument("file", help="Path to file to add")
     add_parser.add_argument(
-        '--dest', '-d',
-        help='Destination path within wheel (default: filename). Use .dist-info/ prefix for auto-resolution.'
+        "--dest",
+        "-d",
+        help="Destination path within wheel (default: filename). Use .dist-info/ prefix for auto-resolution.",
     )
     add_parser.add_argument(
-        '--output', '-o',
-        help='Output path for patched wheel (default: adds -patched suffix)'
+        "--output",
+        "-o",
+        help="Output path for patched wheel (default: adds -patched suffix)",
     )
     add_parser.add_argument(
-        '--in-place',
-        action='store_true',
-        help='Modify wheel in-place (default: create new file)'
+        "--in-place",
+        action="store_true",
+        help="Modify wheel in-place (default: create new file)",
     )
     add_parser.add_argument(
-        '--force', '-f',
-        action='store_true',
-        help='Overwrite existing files in wheel'
+        "--force", "-f", action="store_true", help="Overwrite existing files in wheel"
     )
 
     # Apply command
     apply_parser = subparsers.add_parser(
-        'apply',
-        help='Apply changes from a manifest file'
+        "apply", help="Apply changes from a manifest file"
     )
-    apply_parser.add_argument('wheel', help='Path to wheel file')
+    apply_parser.add_argument("wheel", help="Path to wheel file")
     apply_parser.add_argument(
-        '--manifest', '-m',
-        required=True,
-        help='Path to manifest JSON file'
+        "--manifest", "-m", required=True, help="Path to manifest JSON file"
     )
     apply_parser.add_argument(
-        '--output', '-o',
-        help='Output path for patched wheel (default: adds -patched suffix)'
+        "--output",
+        "-o",
+        help="Output path for patched wheel (default: adds -patched suffix)",
     )
     apply_parser.add_argument(
-        '--in-place',
-        action='store_true',
-        help='Modify wheel in-place (default: create new file)'
+        "--in-place",
+        action="store_true",
+        help="Modify wheel in-place (default: create new file)",
     )
     apply_parser.add_argument(
-        '--force', '-f',
-        action='store_true',
-        help='Overwrite existing files in wheel'
+        "--force", "-f", action="store_true", help="Overwrite existing files in wheel"
     )
 
     # List command
-    list_parser = subparsers.add_parser(
-        'list',
-        help='List contents of a wheel'
-    )
-    list_parser.add_argument('wheel', help='Path to wheel file')
+    list_parser = subparsers.add_parser("list", help="List contents of a wheel")
+    list_parser.add_argument("wheel", help="Path to wheel file")
 
     # Extract command
-    extract_parser = subparsers.add_parser(
-        'extract',
-        help='Extract wheel to directory'
-    )
-    extract_parser.add_argument('wheel', help='Path to wheel file')
+    extract_parser = subparsers.add_parser("extract", help="Extract wheel to directory")
+    extract_parser.add_argument("wheel", help="Path to wheel file")
     extract_parser.add_argument(
-        '--output', '-o',
-        help='Output directory (default: wheel name)'
+        "--output", "-o", help="Output directory (default: wheel name)"
     )
 
     # Parse arguments
@@ -309,18 +296,18 @@ Note: Use .dist-info/ prefix for auto-resolution (e.g., .dist-info/sbom.json).
         parser.print_help()
         return 1
 
-    if args.command == 'add':
+    if args.command == "add":
         return cmd_add(args)
-    elif args.command == 'apply':
+    elif args.command == "apply":
         return cmd_apply(args)
-    elif args.command == 'list':
+    elif args.command == "list":
         return cmd_list(args)
-    elif args.command == 'extract':
+    elif args.command == "extract":
         return cmd_extract(args)
     else:
         parser.print_help()
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

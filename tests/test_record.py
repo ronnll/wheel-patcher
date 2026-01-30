@@ -16,7 +16,7 @@ def test_hash_file():
 
     # Verify hash is correct
     digest = hashlib.sha256(content).digest()
-    expected_hash = base64.urlsafe_b64encode(digest).rstrip(b'=').decode('ascii')
+    expected_hash = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
     assert hash_result == f"sha256={expected_hash}"
 
 
@@ -105,7 +105,7 @@ def test_format_record():
     formatted = record.format_record(entries)
 
     # Should be CSV format
-    lines = formatted.strip().split('\n')
+    lines = formatted.strip().split("\n")
     assert len(lines) == 3
     assert lines[0] == "file1.py,sha256=abc,100"
     assert lines[1] == "file2.py,sha256=def,200"

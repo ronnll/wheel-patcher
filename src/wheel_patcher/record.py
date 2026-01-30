@@ -71,7 +71,7 @@ def hash_file(content: bytes) -> str:
         Uses urlsafe base64 encoding without padding, per PEP 427.
     """
     digest = hashlib.sha256(content).digest()
-    hash_b64 = base64.urlsafe_b64encode(digest).rstrip(b'=').decode('ascii')
+    hash_b64 = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
     return f"sha256={hash_b64}"
 
 
@@ -96,9 +96,7 @@ def format_record_entry(path: str, content: Optional[bytes] = None) -> RecordEnt
 
 
 def update_record(
-    existing_entries: List[RecordEntry],
-    new_files: Dict[str, bytes],
-    record_path: str
+    existing_entries: List[RecordEntry], new_files: Dict[str, bytes], record_path: str
 ) -> List[RecordEntry]:
     """
     Update RECORD with new file entries.
@@ -135,7 +133,7 @@ def format_record(entries: List[RecordEntry]) -> str:
         RECORD file content as string
     """
     output = StringIO()
-    writer = csv.writer(output, lineterminator='\n')
+    writer = csv.writer(output, lineterminator="\n")
     for entry in entries:
         writer.writerow(entry.to_csv_row())
     return output.getvalue()

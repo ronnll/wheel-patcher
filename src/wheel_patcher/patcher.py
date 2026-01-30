@@ -33,12 +33,12 @@ class WheelPatcher:
         if not wheel_path.exists():
             raise WheelError(f"Wheel file not found: {wheel_path}")
 
-        if not wheel_path.suffix == '.whl':
+        if not wheel_path.suffix == ".whl":
             raise WheelError(f"Not a wheel file: {wheel_path}")
 
         try:
             self.wheel_path = wheel_path
-            self._zip_file = zipfile.ZipFile(wheel_path, 'r')
+            self._zip_file = zipfile.ZipFile(wheel_path, "r")
             self._dist_info_dir = get_dist_info_dir(self._zip_file)
 
             if not self._dist_info_dir:
@@ -54,7 +54,7 @@ class WheelPatcher:
     def _read_record(self) -> list:
         """Read and parse the RECORD file."""
         try:
-            record_content = self._zip_file.read(self._record_path).decode('utf-8')
+            record_content = self._zip_file.read(self._record_path).decode("utf-8")
             return record_module.parse_record(record_content)
         except KeyError:
             raise WheelError(f"RECORD file not found: {self._record_path}")
@@ -73,11 +73,13 @@ class WheelPatcher:
         Returns:
             Path with .dist-info/ replaced by actual dist-info directory name
         """
-        if path.startswith('.dist-info/'):
-            return self._dist_info_dir + path[len('.dist-info'):]
+        if path.startswith(".dist-info/"):
+            return self._dist_info_dir + path[len(".dist-info") :]
         return path
 
-    def add_file(self, source: Path, dest: Optional[str] = None, overwrite: bool = False) -> None:
+    def add_file(
+        self, source: Path, dest: Optional[str] = None, overwrite: bool = False
+    ) -> None:
         """
         Add a file to the wheel.
 
@@ -108,9 +110,7 @@ class WheelPatcher:
                     f"File already exists in wheel: {dest} (use --force to overwrite)"
                 )
             if dest in self._files_to_add:
-                raise WheelError(
-                    f"File already queued for addition: {dest}"
-                )
+                raise WheelError(f"File already queued for addition: {dest}")
 
         content = source.read_bytes()
         self._files_to_add[dest] = content
@@ -142,11 +142,11 @@ class WheelPatcher:
         if not self._files_to_add:
             raise WheelError("No files to add. Use add_file() first.")
 
-        temp_fd, temp_path = tempfile.mkstemp(suffix='.whl')
+        temp_fd, temp_path = tempfile.mkstemp(suffix=".whl")
         temp_path = Path(temp_path)
 
         try:
-            with zipfile.ZipFile(temp_path, 'w', zipfile.ZIP_DEFLATED) as new_zip:
+            with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as new_zip:
                 for item in self._zip_file.namelist():
                     if item != self._record_path:
                         data = self._zip_file.read(item)
@@ -156,9 +156,7 @@ class WheelPatcher:
                     new_zip.writestr(dest, content)
 
                 updated_record = record_module.update_record(
-                    self._existing_record,
-                    self._files_to_add,
-                    self._record_path
+                    self._existing_record, self._files_to_add, self._record_path
                 )
                 record_content = record_module.format_record(updated_record)
                 new_zip.writestr(self._record_path, record_content)

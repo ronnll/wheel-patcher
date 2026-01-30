@@ -246,15 +246,52 @@ This matches the PEP 427 specification exactly.
 
 ### Running tests
 
-Install pytest:
+This project uses [nox](https://nox.thea.codes/) for test automation and [uv](https://github.com/astral-sh/uv) for fast package installation.
+
+Install nox:
+
+```bash
+pip install nox
+```
+
+Run all tests across all supported Python versions:
+
+```bash
+nox
+```
+
+Run tests on a specific Python version:
+
+```bash
+nox -s tests-3.12
+```
+
+Other available sessions:
+
+```bash
+# Run linting
+nox -s lint
+
+# Check code formatting
+nox -s format_check
+
+# Auto-format code
+nox -s format
+
+# Run type checking
+nox -s type_check
+```
+
+For faster iteration during development, reuse virtual environments:
+
+```bash
+nox -s tests-3.12 -R
+```
+
+Alternatively, run tests directly with pytest:
 
 ```bash
 pip install pytest
-```
-
-Run tests:
-
-```bash
 pytest tests/ -v
 ```
 

@@ -18,6 +18,7 @@ __all__ = [
 
 class WheelError(Exception):
     """Base exception for wheel-related errors."""
+
     pass
 
 
@@ -34,11 +35,11 @@ def is_valid_wheel(path: Path) -> bool:
     if not path.exists():
         return False
 
-    if not path.suffix == '.whl':
+    if not path.suffix == ".whl":
         return False
 
     try:
-        with zipfile.ZipFile(path, 'r') as zf:
+        with zipfile.ZipFile(path, "r") as zf:
             zf.testzip()
             return get_dist_info_dir(zf) is not None
     except (zipfile.BadZipFile, OSError):
@@ -56,10 +57,10 @@ def get_dist_info_dir(zip_file: zipfile.ZipFile) -> Optional[str]:
         Name of dist-info directory, or None if not found
     """
     for name in zip_file.namelist():
-        if '.dist-info/' in name:
-            parts = name.split('/')
+        if ".dist-info/" in name:
+            parts = name.split("/")
             for part in parts:
-                if part.endswith('.dist-info'):
+                if part.endswith(".dist-info"):
                     return part
     return None
 
@@ -74,7 +75,7 @@ def list_wheel_contents(path: Path) -> List[str]:
     Returns:
         List of file paths in wheel
     """
-    with zipfile.ZipFile(path, 'r') as zf:
+    with zipfile.ZipFile(path, "r") as zf:
         return zf.namelist()
 
 
@@ -89,9 +90,9 @@ def normalize_path(path: str) -> str:
         Normalized path with forward slashes
     """
     # Convert backslashes to forward slashes (Windows compatibility)
-    normalized = path.replace('\\', '/')
+    normalized = path.replace("\\", "/")
 
-    while normalized.startswith('/'):
+    while normalized.startswith("/"):
         normalized = normalized[1:]
 
     return normalized
@@ -109,7 +110,7 @@ def validate_path_safe(path: str) -> None:
     """
     normalized = normalize_path(path)
 
-    if '..' in normalized.split('/'):
+    if ".." in normalized.split("/"):
         raise WheelError(f"Path traversal detected in path: {path}")
 
     if os.path.isabs(path):
