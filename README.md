@@ -37,16 +37,18 @@ Add a file to a wheel:
 
 ```bash
 wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
-  --dest mypackage-1.0.dist-info/sbom.json
+  --dest .dist-info/sbom.json
 ```
 
 By default, this creates `mypackage-1.0-py3-none-any-patched.whl`.
+
+The `.dist-info/` prefix is automatically resolved to the actual dist-info directory name (e.g., `mypackage-1.0.dist-info/`), so you don't need to know the exact package name and version.
 
 ### Specify output path
 
 ```bash
 wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
-  --dest mypackage-1.0.dist-info/sbom.json \
+  --dest .dist-info/sbom.json \
   --output mypackage-1.0-py3-none-any-with-sbom.whl
 ```
 
@@ -54,7 +56,7 @@ wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
 
 ```bash
 wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
-  --dest mypackage-1.0.dist-info/sbom.json \
+  --dest .dist-info/sbom.json \
   --in-place
 ```
 
@@ -67,11 +69,11 @@ Create a manifest file (`manifest.json`):
   "files": [
     {
       "source": "sbom.json",
-      "dest": "mypackage-1.0.dist-info/sbom.json"
+      "dest": ".dist-info/sbom.json"
     },
     {
       "source": "LICENSE-THIRD-PARTY",
-      "dest": "mypackage-1.0.dist-info/licenses/LICENSE-THIRD-PARTY"
+      "dest": ".dist-info/licenses/LICENSE-THIRD-PARTY"
     }
   ]
 }
@@ -167,6 +169,42 @@ Each file entry must have:
 - `source`: Path to the source file on disk
 - `dest`: Destination path within the wheel
 
+## Automatic .dist-info/ Directory Resolution
+
+When specifying destination paths, you can use `.dist-info/` as a prefix instead of the full dist-info directory name. The tool automatically resolves this to the actual directory name (e.g., `package-version.dist-info/`).
+
+This feature makes it easier to:
+- Add files to the dist-info directory without knowing the exact package name and version
+- Create portable manifests that work across different versions of a package
+- Avoid typos in dist-info directory names
+
+### Examples
+
+```bash
+# Instead of:
+wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
+  --dest mypackage-1.0.dist-info/sbom.json
+
+# You can use:
+wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
+  --dest .dist-info/sbom.json
+```
+
+The `.dist-info/` prefix works in both direct commands and manifest files:
+
+```json
+{
+  "files": [
+    {
+      "source": "sbom.json",
+      "dest": ".dist-info/sbom.json"
+    }
+  ]
+}
+```
+
+**Note**: Paths that don't start with `.dist-info/` are not modified and are used as-is.
+
 ## Common Use Cases
 
 ### Adding SBOM to a wheel
@@ -177,21 +215,21 @@ cyclonedx-py -o sbom.json
 
 # Add to wheel
 wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
-  --dest mypackage-1.0.dist-info/sbom.json
+  --dest .dist-info/sbom.json
 ```
 
 ### Adding license files
 
 ```bash
 wheel-patcher add mypackage-1.0-py3-none-any.whl LICENSE-THIRD-PARTY \
-  --dest mypackage-1.0.dist-info/licenses/LICENSE-THIRD-PARTY
+  --dest .dist-info/licenses/LICENSE-THIRD-PARTY
 ```
 
 ### Adding metadata files
 
 ```bash
 wheel-patcher add mypackage-1.0-py3-none-any.whl SECURITY.md \
-  --dest mypackage-1.0.dist-info/SECURITY.md
+  --dest .dist-info/SECURITY.md
 ```
 
 ## How It Works

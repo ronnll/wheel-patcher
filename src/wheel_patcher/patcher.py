@@ -62,6 +62,21 @@ class WheelPatcher:
         """Get the name of the dist-info directory."""
         return self._dist_info_dir
 
+    def _resolve_dist_info_path(self, path: str) -> str:
+        """
+        Resolve .dist-info/ prefix in path to actual dist-info directory.
+
+        Args:
+            path: Path that may contain .dist-info/ prefix
+
+        Returns:
+            Path with .dist-info/ replaced by actual dist-info directory name
+        """
+        if path.startswith('.dist-info/'):
+            # Replace .dist-info/ prefix with actual directory name
+            return self._dist_info_dir + path[len('.dist-info'):]
+        return path
+
     def add_file(self, source: Path, dest: Optional[str] = None, overwrite: bool = False) -> None:
         """
         Add a file to the wheel.
@@ -84,6 +99,8 @@ class WheelPatcher:
         if dest is None:
             dest = source.name
 
+        # Resolve .dist-info/ prefix before normalization
+        dest = self._resolve_dist_info_path(dest)
         dest = normalize_path(dest)
         validate_path_safe(dest)
 

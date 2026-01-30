@@ -206,7 +206,7 @@ def main():
 Examples:
   # Add an SBOM file to a wheel
   wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \\
-    --dest mypackage-1.0.dist-info/sbom.json
+    --dest .dist-info/sbom.json
 
   # Apply changes from a manifest
   wheel-patcher apply mypackage-1.0-py3-none-any.whl --manifest changes.json
@@ -216,6 +216,9 @@ Examples:
 
   # Extract wheel to directory
   wheel-patcher extract mypackage-1.0-py3-none-any.whl --output extracted/
+
+Note: Use .dist-info/ as a path prefix for automatic resolution to the actual
+      dist-info directory (e.g., package-version.dist-info/).
 '''
     )
 
@@ -236,7 +239,7 @@ Examples:
     add_parser.add_argument('file', help='Path to file to add')
     add_parser.add_argument(
         '--dest', '-d',
-        help='Destination path within wheel (default: filename)'
+        help='Destination path within wheel (default: filename). Use .dist-info/ prefix for automatic resolution to the actual dist-info directory.'
     )
     add_parser.add_argument(
         '--output', '-o',

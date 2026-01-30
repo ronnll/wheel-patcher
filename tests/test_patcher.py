@@ -163,3 +163,98 @@ def test_context_manager():
     with WheelPatcher(TEST_WHEEL) as patcher:
         assert patcher.get_dist_info_dir() == "requests-2.32.5.dist-info"
     # File should be closed after exiting context
+
+
+def test_dist_info_prefix_resolution():
+    """Test automatic .dist-info/ prefix resolution."""
+    if not TEST_WHEEL.exists():
+        pytest.skip("Test wheel not found")
+
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        f.write('{"type": "sbom"}')
+        temp_file = Path(f.name)
+
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_wheel = Path(tmpdir) / "patched.whl"
+
+            with WheelPatcher(TEST_WHEEL) as patcher:
+                # Use .dist-info/ prefix - should be automatically resolved
+                patcher.add_file(temp_file, ".dist-info/sboms/sbom.json")
+                patcher.save(output_wheel)
+
+            # Verify the file was added with the correct path
+            expected_path = "requests-2.32.5.dist-info/sboms/sbom.json"
+            with zipfile.ZipFile(output_wheel, 'r') as zf:
+                assert expected_path in zf.namelist()
+                content = zf.read(expected_path).decode('utf-8')
+                assert content == '{"type": "sbom"}'
+
+                # Verify RECORD was updated with resolved path
+                record_content = zf.read("requests-2.32.5.dist-info/RECORD").decode('utf-8')
+                assert expected_path in record_content
+
+    finally:
+        temp_file.unlink()
+
+
+def test_dist_info_prefix_multiple_files():
+    """Test .dist-info/ prefix resolution with multiple files."""
+    if not TEST_WHEEL.exists():
+        pytest.skip("Test wheel not found")
+
+    # Create two temporary files
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        f.write('{"sbom": "data"}')
+        sbom_file = Path(f.name)
+
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        f.write('License text')
+        license_file = Path(f.name)
+
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_wheel = Path(tmpdir) / "patched.whl"
+
+            with WheelPatcher(TEST_WHEEL) as patcher:
+                # Add multiple files using .dist-info/ prefix
+                patcher.add_file(sbom_file, ".dist-info/sbom.json")
+                patcher.add_file(license_file, ".dist-info/licenses/LICENSE-THIRD-PARTY")
+                patcher.save(output_wheel)
+
+            # Verify both files were added with resolved paths
+            with zipfile.ZipFile(output_wheel, 'r') as zf:
+                assert "requests-2.32.5.dist-info/sbom.json" in zf.namelist()
+                assert "requests-2.32.5.dist-info/licenses/LICENSE-THIRD-PARTY" in zf.namelist()
+
+    finally:
+        sbom_file.unlink()
+        license_file.unlink()
+
+
+def test_dist_info_prefix_not_applied_when_absent():
+    """Test that paths without .dist-info/ prefix are not modified."""
+    if not TEST_WHEEL.exists():
+        pytest.skip("Test wheel not found")
+
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        f.write('Regular file')
+        temp_file = Path(f.name)
+
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_wheel = Path(tmpdir) / "patched.whl"
+
+            with WheelPatcher(TEST_WHEEL) as patcher:
+                # Regular path without .dist-info/ prefix
+                patcher.add_file(temp_file, "custom/path/file.txt")
+                patcher.save(output_wheel)
+
+            # Verify the file is at the exact path specified
+            with zipfile.ZipFile(output_wheel, 'r') as zf:
+                assert "custom/path/file.txt" in zf.namelist()
+                # Should NOT be in dist-info
+                assert "requests-2.32.5.dist-info/custom/path/file.txt" not in zf.namelist()
+
+    finally:
+        temp_file.unlink()
