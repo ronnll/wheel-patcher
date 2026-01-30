@@ -42,7 +42,7 @@ wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
 
 By default, this creates `mypackage-1.0-py3-none-any-patched.whl`.
 
-The `.dist-info/` prefix is automatically resolved to the actual dist-info directory name (e.g., `mypackage-1.0.dist-info/`), so you don't need to know the exact package name and version.
+**Note:** The `.dist-info/` prefix is automatically resolved to the actual dist-info directory name (e.g., `mypackage-1.0.dist-info/`), so you don't need to know the exact package name and version. This works in both commands and manifest files.
 
 ### Specify output path
 
@@ -167,43 +167,7 @@ Manifest files are JSON with the following structure:
 Each file entry must have:
 
 - `source`: Path to the source file on disk
-- `dest`: Destination path within the wheel
-
-## Automatic .dist-info/ Directory Resolution
-
-When specifying destination paths, you can use `.dist-info/` as a prefix instead of the full dist-info directory name. The tool automatically resolves this to the actual directory name (e.g., `package-version.dist-info/`).
-
-This feature makes it easier to:
-- Add files to the dist-info directory without knowing the exact package name and version
-- Create portable manifests that work across different versions of a package
-- Avoid typos in dist-info directory names
-
-### Examples
-
-```bash
-# Instead of:
-wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
-  --dest mypackage-1.0.dist-info/sbom.json
-
-# You can use:
-wheel-patcher add mypackage-1.0-py3-none-any.whl sbom.json \
-  --dest .dist-info/sbom.json
-```
-
-The `.dist-info/` prefix works in both direct commands and manifest files:
-
-```json
-{
-  "files": [
-    {
-      "source": "sbom.json",
-      "dest": ".dist-info/sbom.json"
-    }
-  ]
-}
-```
-
-**Note**: Paths that don't start with `.dist-info/` are not modified and are used as-is.
+- `dest`: Destination path within the wheel (use `.dist-info/` prefix for auto-resolution)
 
 ## Common Use Cases
 

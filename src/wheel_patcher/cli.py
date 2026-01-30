@@ -209,8 +209,7 @@ Examples:
   # Extract wheel to directory
   wheel-patcher extract mypackage-1.0-py3-none-any.whl --output extracted/
 
-Note: Use .dist-info/ as a path prefix for automatic resolution to the actual
-      dist-info directory (e.g., package-version.dist-info/).
+Note: Use .dist-info/ prefix for auto-resolution (e.g., .dist-info/sbom.json).
 '''
     )
 
@@ -231,7 +230,7 @@ Note: Use .dist-info/ as a path prefix for automatic resolution to the actual
     add_parser.add_argument('file', help='Path to file to add')
     add_parser.add_argument(
         '--dest', '-d',
-        help='Destination path within wheel (default: filename). Use .dist-info/ prefix for automatic resolution to the actual dist-info directory.'
+        help='Destination path within wheel (default: filename). Use .dist-info/ prefix for auto-resolution.'
     )
     add_parser.add_argument(
         '--output', '-o',
