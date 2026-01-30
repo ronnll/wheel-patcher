@@ -146,24 +146,19 @@ class WheelPatcher:
         if not self._files_to_add:
             raise WheelError("No files to add. Use add_file() first.")
 
-        # Create temporary file for new wheel
         temp_fd, temp_path = tempfile.mkstemp(suffix='.whl')
         temp_path = Path(temp_path)
 
         try:
-            # Create new wheel
             with zipfile.ZipFile(temp_path, 'w', zipfile.ZIP_DEFLATED) as new_zip:
-                # Copy all existing files except RECORD
                 for item in self._zip_file.namelist():
                     if item != self._record_path:
                         data = self._zip_file.read(item)
                         new_zip.writestr(item, data)
 
-                # Add new files
                 for dest, content in self._files_to_add.items():
                     new_zip.writestr(dest, content)
 
-                # Generate updated RECORD
                 updated_record = record_module.update_record(
                     self._existing_record,
                     self._files_to_add,
@@ -172,11 +167,9 @@ class WheelPatcher:
                 record_content = record_module.format_record(updated_record)
                 new_zip.writestr(self._record_path, record_content)
 
-            # Move temp file to final location
             temp_path.replace(output_path)
 
         except Exception as e:
-            # Clean up temp file on error
             try:
                 temp_path.unlink()
             except Exception:
@@ -184,7 +177,6 @@ class WheelPatcher:
             raise WheelError(f"Failed to save patched wheel: {e}") from e
 
         finally:
-            # Close temp file descriptor
             try:
                 import os
                 os.close(temp_fd)

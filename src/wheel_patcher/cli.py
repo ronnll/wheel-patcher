@@ -22,7 +22,6 @@ def cmd_add(args):
     wheel_path = Path(args.wheel)
     source_path = Path(args.file)
 
-    # Validate inputs
     if not wheel_path.exists():
         print(f"Error: Wheel file not found: {wheel_path}", file=sys.stderr)
         return 1
@@ -35,7 +34,6 @@ def cmd_add(args):
         print(f"Error: Invalid wheel file: {wheel_path}", file=sys.stderr)
         return 1
 
-    # Determine output path
     if args.output:
         output_path = Path(args.output)
     elif args.in_place:
@@ -69,7 +67,6 @@ def cmd_apply(args):
     wheel_path = Path(args.wheel)
     manifest_path = Path(args.manifest)
 
-    # Validate inputs
     if not wheel_path.exists():
         print(f"Error: Wheel file not found: {wheel_path}", file=sys.stderr)
         return 1
@@ -82,7 +79,6 @@ def cmd_apply(args):
         print(f"Error: Invalid wheel file: {wheel_path}", file=sys.stderr)
         return 1
 
-    # Load manifest
     try:
         with open(manifest_path, 'r') as f:
             manifest = json.load(f)
@@ -93,12 +89,10 @@ def cmd_apply(args):
         print(f"Error reading manifest: {e}", file=sys.stderr)
         return 1
 
-    # Validate manifest structure
     if 'files' not in manifest:
         print("Error: Manifest must contain 'files' array", file=sys.stderr)
         return 1
 
-    # Determine output path
     if args.output:
         output_path = Path(args.output)
     elif args.in_place:
@@ -108,7 +102,6 @@ def cmd_apply(args):
 
     try:
         with WheelPatcher(wheel_path) as patcher:
-            # Add all files from manifest
             for file_spec in manifest['files']:
                 if 'source' not in file_spec or 'dest' not in file_spec:
                     print("Error: Each file entry must have 'source' and 'dest'", file=sys.stderr)
@@ -184,10 +177,8 @@ def cmd_extract(args):
 
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
-
         with zipfile.ZipFile(wheel_path, 'r') as zf:
             zf.extractall(output_dir)
-
         print(f"Extracted wheel to: {output_dir}")
         return 0
 
@@ -307,7 +298,6 @@ Note: Use .dist-info/ as a path prefix for automatic resolution to the actual
         parser.print_help()
         return 1
 
-    # Dispatch to command handler
     if args.command == 'add':
         return cmd_add(args)
     elif args.command == 'apply':
