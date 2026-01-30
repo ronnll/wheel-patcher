@@ -101,11 +101,12 @@ wheel-patcher extract mypackage-1.0-py3-none-any.whl --output extracted/
 
 Add a single file to a wheel.
 
-```
+```text
 wheel-patcher add <wheel-file> <file-to-add> [options]
 ```
 
 Options:
+
 - `--dest`, `-d`: Destination path within wheel (default: filename)
 - `--output`, `-o`: Output path for patched wheel (default: adds -patched suffix)
 - `--in-place`: Modify wheel in-place
@@ -115,11 +116,12 @@ Options:
 
 Apply batch changes from a manifest file.
 
-```
+```text
 wheel-patcher apply <wheel-file> --manifest <manifest.json> [options]
 ```
 
 Options:
+
 - `--manifest`, `-m`: Path to manifest JSON file (required)
 - `--output`, `-o`: Output path for patched wheel
 - `--in-place`: Modify wheel in-place
@@ -129,7 +131,7 @@ Options:
 
 List contents of a wheel.
 
-```
+```text
 wheel-patcher list <wheel-file>
 ```
 
@@ -137,11 +139,12 @@ wheel-patcher list <wheel-file>
 
 Extract wheel to a directory.
 
-```
+```text
 wheel-patcher extract <wheel-file> [--output <directory>]
 ```
 
 Options:
+
 - `--output`, `-o`: Output directory (default: wheel name)
 
 ## Manifest File Format
@@ -160,6 +163,7 @@ Manifest files are JSON with the following structure:
 ```
 
 Each file entry must have:
+
 - `source`: Path to the source file on disk
 - `dest`: Destination path within the wheel
 
@@ -200,6 +204,7 @@ wheel-patcher add mypackage-1.0-py3-none-any.whl SECURITY.md \
 6. Writes the patched wheel
 
 The tool ensures:
+
 - Proper SHA256 hash format (urlsafe base64, no padding)
 - RECORD file compliance (itself listed with empty hash)
 - Path validation (prevents path traversal)
@@ -211,7 +216,7 @@ The tool ensures:
 
 Per PEP 427, the RECORD file is CSV format:
 
-```
+```text
 path/to/file,sha256=base64hash,size
 another/file,sha256=anotherhash,1234
 package.dist-info/RECORD,,
@@ -251,22 +256,6 @@ Run tests:
 pytest tests/ -v
 ```
 
-### Project structure
-
-```
-wheel-patcher/
-├── src/wheel_patcher/
-│   ├── __init__.py      # Package version
-│   ├── __main__.py      # Enable python -m wheel_patcher
-│   ├── cli.py           # CLI interface
-│   ├── patcher.py       # Core patching logic
-│   ├── record.py        # RECORD file handling
-│   └── utils.py         # Utilities
-└── tests/
-    ├── test_patcher.py  # Patcher tests
-    └── test_record.py   # RECORD tests
-```
-
 ## License
 
 MIT License
@@ -274,6 +263,7 @@ MIT License
 ## Contributing
 
 Contributions welcome! Please ensure:
+
 - Tests pass
 - Code follows existing style
 - RECORD format compliance is maintained
