@@ -4,9 +4,10 @@ import os
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from . import record as record_module
+from .record import RecordEntry
 from .utils import (
     WheelError,
     get_dist_info_dir,
@@ -51,7 +52,7 @@ class WheelPatcher:
         except zipfile.BadZipFile as e:
             raise WheelError(f"Invalid ZIP file: {wheel_path}") from e
 
-    def _read_record(self) -> list:
+    def _read_record(self) -> List[RecordEntry]:
         """Read and parse the RECORD file."""
         try:
             record_content = self._zip_file.read(self._record_path).decode("utf-8")
@@ -61,6 +62,7 @@ class WheelPatcher:
 
     def get_dist_info_dir(self) -> str:
         """Get the name of the dist-info directory."""
+        assert self._dist_info_dir is not None
         return self._dist_info_dir
 
     def _resolve_dist_info_path(self, path: str) -> str:
@@ -74,6 +76,7 @@ class WheelPatcher:
             Path with .dist-info/ replaced by actual dist-info directory name
         """
         if path.startswith(".dist-info/"):
+            assert self._dist_info_dir is not None
             return self._dist_info_dir + path[len(".dist-info") :]
         return path
 
@@ -142,8 +145,8 @@ class WheelPatcher:
         if not self._files_to_add:
             raise WheelError("No files to add. Use add_file() first.")
 
-        temp_fd, temp_path = tempfile.mkstemp(suffix=".whl")
-        temp_path = Path(temp_path)
+        temp_fd, temp_path_str = tempfile.mkstemp(suffix=".whl")
+        temp_path = Path(temp_path_str)
 
         try:
             with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as new_zip:
@@ -180,10 +183,15 @@ class WheelPatcher:
         """Close the wheel file."""
         self._zip_file.close()
 
-    def __enter__(self):
+    def __enter__(self) -> "WheelPatcher":
         """Context manager entry."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Any,
+    ) -> None:
         """Context manager exit."""
         self.close()

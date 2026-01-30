@@ -5,7 +5,6 @@ import json
 import sys
 import zipfile
 from pathlib import Path
-from typing import Dict
 
 from . import __version__
 from .patcher import WheelPatcher
@@ -40,7 +39,7 @@ def _validate_wheel_file(wheel_path: Path) -> int:
     return 0
 
 
-def _determine_output_path(args, wheel_path: Path) -> Path:
+def _determine_output_path(args: argparse.Namespace, wheel_path: Path) -> Path:
     """
     Determine the output path for a patched wheel based on arguments.
 
@@ -59,7 +58,7 @@ def _determine_output_path(args, wheel_path: Path) -> Path:
         return generate_output_path(wheel_path)
 
 
-def cmd_add(args):
+def cmd_add(args: argparse.Namespace) -> int:
     """Handle 'add' command - add a file to a wheel."""
     wheel_path = Path(args.wheel)
     source_path = Path(args.file)
@@ -94,7 +93,7 @@ def cmd_add(args):
         return 1
 
 
-def cmd_apply(args):
+def cmd_apply(args: argparse.Namespace) -> int:
     """Handle 'apply' command - apply changes from manifest."""
     wheel_path = Path(args.wheel)
     manifest_path = Path(args.manifest)
@@ -156,7 +155,7 @@ def cmd_apply(args):
         return 1
 
 
-def cmd_list(args):
+def cmd_list(args: argparse.Namespace) -> int:
     """Handle 'list' command - list wheel contents."""
     wheel_path = Path(args.wheel)
 
@@ -177,7 +176,7 @@ def cmd_list(args):
         return 1
 
 
-def cmd_extract(args):
+def cmd_extract(args: argparse.Namespace) -> int:
     """Handle 'extract' command - extract wheel to directory."""
     wheel_path = Path(args.wheel)
 
@@ -202,7 +201,7 @@ def cmd_extract(args):
         return 1
 
 
-def main():
+def main() -> int:
     """Main entry point for CLI."""
     parser = argparse.ArgumentParser(
         prog="wheel-patcher",
