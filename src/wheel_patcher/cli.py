@@ -17,21 +17,37 @@ from .utils import (
 )
 
 
+def _validate_wheel_file(wheel_path: Path) -> int:
+    """
+    Validate that a wheel file exists and is valid.
+
+    Args:
+        wheel_path: Path to wheel file
+
+    Returns:
+        0 if valid, 1 if invalid (with error printed to stderr)
+    """
+    if not wheel_path.exists():
+        print(f"Error: Wheel file not found: {wheel_path}", file=sys.stderr)
+        return 1
+
+    if not is_valid_wheel(wheel_path):
+        print(f"Error: Invalid wheel file: {wheel_path}", file=sys.stderr)
+        return 1
+
+    return 0
+
+
 def cmd_add(args):
     """Handle 'add' command - add a file to a wheel."""
     wheel_path = Path(args.wheel)
     source_path = Path(args.file)
 
-    if not wheel_path.exists():
-        print(f"Error: Wheel file not found: {wheel_path}", file=sys.stderr)
-        return 1
+    if (result := _validate_wheel_file(wheel_path)) != 0:
+        return result
 
     if not source_path.exists():
         print(f"Error: Source file not found: {source_path}", file=sys.stderr)
-        return 1
-
-    if not is_valid_wheel(wheel_path):
-        print(f"Error: Invalid wheel file: {wheel_path}", file=sys.stderr)
         return 1
 
     if args.output:
@@ -67,16 +83,11 @@ def cmd_apply(args):
     wheel_path = Path(args.wheel)
     manifest_path = Path(args.manifest)
 
-    if not wheel_path.exists():
-        print(f"Error: Wheel file not found: {wheel_path}", file=sys.stderr)
-        return 1
+    if (result := _validate_wheel_file(wheel_path)) != 0:
+        return result
 
     if not manifest_path.exists():
         print(f"Error: Manifest file not found: {manifest_path}", file=sys.stderr)
-        return 1
-
-    if not is_valid_wheel(wheel_path):
-        print(f"Error: Invalid wheel file: {wheel_path}", file=sys.stderr)
         return 1
 
     try:
@@ -135,13 +146,8 @@ def cmd_list(args):
     """Handle 'list' command - list wheel contents."""
     wheel_path = Path(args.wheel)
 
-    if not wheel_path.exists():
-        print(f"Error: Wheel file not found: {wheel_path}", file=sys.stderr)
-        return 1
-
-    if not is_valid_wheel(wheel_path):
-        print(f"Error: Invalid wheel file: {wheel_path}", file=sys.stderr)
-        return 1
+    if (result := _validate_wheel_file(wheel_path)) != 0:
+        return result
 
     try:
         contents = list_wheel_contents(wheel_path)
@@ -161,13 +167,8 @@ def cmd_extract(args):
     """Handle 'extract' command - extract wheel to directory."""
     wheel_path = Path(args.wheel)
 
-    if not wheel_path.exists():
-        print(f"Error: Wheel file not found: {wheel_path}", file=sys.stderr)
-        return 1
-
-    if not is_valid_wheel(wheel_path):
-        print(f"Error: Invalid wheel file: {wheel_path}", file=sys.stderr)
-        return 1
+    if (result := _validate_wheel_file(wheel_path)) != 0:
+        return result
 
     # Determine output directory
     if args.output:
