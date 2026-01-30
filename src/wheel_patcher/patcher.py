@@ -74,7 +74,6 @@ class WheelPatcher:
             Path with .dist-info/ replaced by actual dist-info directory name
         """
         if path.startswith('.dist-info/'):
-            # Replace .dist-info/ prefix with actual directory name
             return self._dist_info_dir + path[len('.dist-info'):]
         return path
 
@@ -96,16 +95,13 @@ class WheelPatcher:
         if not source.is_file():
             raise WheelError(f"Source must be a file: {source}")
 
-        # Determine destination path
         if dest is None:
             dest = source.name
 
-        # Resolve .dist-info/ prefix before normalization
         dest = self._resolve_dist_info_path(dest)
         dest = normalize_path(dest)
         validate_path_safe(dest)
 
-        # Check if file already exists in wheel
         if not overwrite:
             if dest in self._zip_file.namelist():
                 raise WheelError(
@@ -116,7 +112,6 @@ class WheelPatcher:
                     f"File already queued for addition: {dest}"
                 )
 
-        # Read file content
         content = source.read_bytes()
         self._files_to_add[dest] = content
 
