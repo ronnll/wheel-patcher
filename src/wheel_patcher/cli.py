@@ -38,6 +38,25 @@ def _validate_wheel_file(wheel_path: Path) -> int:
     return 0
 
 
+def _determine_output_path(args, wheel_path: Path) -> Path:
+    """
+    Determine the output path for a patched wheel based on arguments.
+
+    Args:
+        args: Parsed command-line arguments
+        wheel_path: Path to the original wheel file
+
+    Returns:
+        Path where the patched wheel should be saved
+    """
+    if args.output:
+        return Path(args.output)
+    elif args.in_place:
+        return wheel_path
+    else:
+        return generate_output_path(wheel_path)
+
+
 def cmd_add(args):
     """Handle 'add' command - add a file to a wheel."""
     wheel_path = Path(args.wheel)
@@ -50,12 +69,7 @@ def cmd_add(args):
         print(f"Error: Source file not found: {source_path}", file=sys.stderr)
         return 1
 
-    if args.output:
-        output_path = Path(args.output)
-    elif args.in_place:
-        output_path = wheel_path
-    else:
-        output_path = generate_output_path(wheel_path)
+    output_path = _determine_output_path(args, wheel_path)
 
     try:
         with WheelPatcher(wheel_path) as patcher:
@@ -104,12 +118,7 @@ def cmd_apply(args):
         print("Error: Manifest must contain 'files' array", file=sys.stderr)
         return 1
 
-    if args.output:
-        output_path = Path(args.output)
-    elif args.in_place:
-        output_path = wheel_path
-    else:
-        output_path = generate_output_path(wheel_path)
+    output_path = _determine_output_path(args, wheel_path)
 
     try:
         with WheelPatcher(wheel_path) as patcher:
