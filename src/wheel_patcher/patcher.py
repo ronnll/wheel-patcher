@@ -15,9 +15,7 @@ from .utils import (
 
 
 class WheelPatcher:
-    """
-    Handles patching of Python wheel files.
-    """
+    """Handles patching of Python wheel files."""
 
     def __init__(self, wheel_path: Path):
         """
