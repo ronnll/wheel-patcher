@@ -29,9 +29,7 @@ def is_valid_wheel(path: Path) -> bool:
 
     try:
         with zipfile.ZipFile(path, 'r') as zf:
-            # Check if it's a valid ZIP
             zf.testzip()
-            # Check for dist-info directory
             return get_dist_info_dir(zf) is not None
     except (zipfile.BadZipFile, OSError):
         return False
@@ -49,7 +47,6 @@ def get_dist_info_dir(zip_file: zipfile.ZipFile) -> Optional[str]:
     """
     for name in zip_file.namelist():
         if '.dist-info/' in name:
-            # Extract the dist-info directory name
             parts = name.split('/')
             for part in parts:
                 if part.endswith('.dist-info'):
@@ -84,7 +81,6 @@ def normalize_path(path: str) -> str:
     # Convert backslashes to forward slashes (Windows compatibility)
     normalized = path.replace('\\', '/')
 
-    # Remove leading slashes
     while normalized.startswith('/'):
         normalized = normalized[1:]
 
