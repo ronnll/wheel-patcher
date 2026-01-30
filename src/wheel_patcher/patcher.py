@@ -1,5 +1,6 @@
 """Core wheel patching logic."""
 
+import os
 import tempfile
 import zipfile
 from pathlib import Path
@@ -178,7 +179,6 @@ class WheelPatcher:
 
         finally:
             try:
-                import os
                 os.close(temp_fd)
             except Exception:
                 pass
