@@ -52,7 +52,7 @@ def parse_record(content: str) -> List[RecordEntry]:
     entries = []
     reader = csv.reader(StringIO(content))
     for row in reader:
-        if row:  # Skip empty rows
+        if row:
             entries.append(RecordEntry.from_csv_row(row))
     return entries
 
@@ -111,10 +111,8 @@ def update_record(
     Returns:
         Updated list of RecordEntry objects
     """
-    # Remove old RECORD entry if present
     entries = [e for e in existing_entries if e.path != record_path]
 
-    # Add new file entries
     for path, content in new_files.items():
         # Remove existing entry for this path if present (for overwrites)
         entries = [e for e in entries if e.path != path]

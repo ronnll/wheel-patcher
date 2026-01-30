@@ -109,11 +109,9 @@ def validate_path_safe(path: str) -> None:
     """
     normalized = normalize_path(path)
 
-    # Check for path traversal
     if '..' in normalized.split('/'):
         raise WheelError(f"Path traversal detected in path: {path}")
 
-    # Check for absolute paths
     if os.path.isabs(path):
         raise WheelError(f"Absolute paths not allowed: {path}")
 
