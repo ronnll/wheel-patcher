@@ -16,6 +16,8 @@ from .utils import (
     list_wheel_contents,
 )
 
+__all__ = ["main"]
+
 
 def _validate_wheel_file(wheel_path: Path) -> int:
     """

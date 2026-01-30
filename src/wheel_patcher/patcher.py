@@ -13,6 +13,8 @@ from .utils import (
     validate_path_safe,
 )
 
+__all__ = ["WheelPatcher"]
+
 
 class WheelPatcher:
     """Handles patching of Python wheel files."""

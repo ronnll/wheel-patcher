@@ -7,6 +7,15 @@ from dataclasses import dataclass
 from io import StringIO
 from typing import Dict, List, Optional
 
+__all__ = [
+    "RecordEntry",
+    "parse_record",
+    "hash_file",
+    "format_record_entry",
+    "update_record",
+    "format_record",
+]
+
 
 @dataclass
 class RecordEntry:

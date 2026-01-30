@@ -5,6 +5,16 @@ import zipfile
 from pathlib import Path
 from typing import List, Optional
 
+__all__ = [
+    "WheelError",
+    "is_valid_wheel",
+    "get_dist_info_dir",
+    "list_wheel_contents",
+    "normalize_path",
+    "validate_path_safe",
+    "generate_output_path",
+]
+
 
 class WheelError(Exception):
     """Base exception for wheel-related errors."""
