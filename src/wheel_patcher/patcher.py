@@ -145,7 +145,12 @@ class WheelPatcher:
         if not self._files_to_add:
             raise WheelError("No files to add. Use add_file() first.")
 
-        temp_fd, temp_path_str = tempfile.mkstemp(suffix=".whl")
+        # Create temp file in the same directory as the output to avoid
+        # cross-device link errors when renaming. os.rename() (used by
+        # Path.replace()) cannot move files across filesystem boundaries.
+        temp_fd, temp_path_str = tempfile.mkstemp(
+            suffix=".whl", dir=output_path.parent
+        )
         temp_path = Path(temp_path_str)
 
         try:
