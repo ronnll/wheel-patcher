@@ -48,7 +48,11 @@ def is_valid_wheel(path: Path) -> bool:
 
 def get_dist_info_dir(zip_file: zipfile.ZipFile) -> Optional[str]:
     """
-    Find the .dist-info directory in a wheel.
+    Find the top-level .dist-info directory in a wheel.
+
+    Some wheels (e.g. setuptools) bundle other packages that have their own
+    .dist-info directories. This function returns only the top-level one by
+    looking for directories that are direct children of the wheel root.
 
     Args:
         zip_file: Opened ZipFile object
@@ -57,11 +61,10 @@ def get_dist_info_dir(zip_file: zipfile.ZipFile) -> Optional[str]:
         Name of dist-info directory, or None if not found
     """
     for name in zip_file.namelist():
-        if ".dist-info/" in name:
-            parts = name.split("/")
-            for part in parts:
-                if part.endswith(".dist-info"):
-                    return part
+        parts = name.split("/")
+        # Only consider top-level .dist-info directories (depth == 1)
+        if parts[0].endswith(".dist-info"):
+            return parts[0]
     return None
 
 
